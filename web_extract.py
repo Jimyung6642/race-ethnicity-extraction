@@ -9,6 +9,9 @@ from selenium.webdriver.support.ui import Select
 import time
 import os
 import shutil
+import chromedriver_autoinstaller # pip install chromedriver-autoinstaller
+
+chromedriver_autoinstaller.install() # To update your chromedriver automatically
 
 
 
@@ -27,10 +30,12 @@ preferences = {
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_experimental_option('prefs', preferences)
 
-driver = webdriver.Chrome(executable_path='driver/chromedriver', options=chrome_options)
+# driver = webdriver.Chrome(executable_path='driver/chromedriver', options=chrome_options)
+driver = webdriver.Chrome(options=chrome_options)
 
 base_url = 'https://www.ncbi.nlm.nih.gov/pmc/articles/'
 pmc_id = 'PMC1507461'
+pmid = '6797614'
 
 driver.get("{}/{}".format(base_url, pmc_id))
 timeout = 5
@@ -52,8 +57,18 @@ try:
     print(f'get value {value}')
 
     driver.get(value)
+    time.sleep(3)
 
-    time.sleep(5)
+    file_name = os.path.basename(value)
+    file_path = os.path.join(download_dir, file_name)
+    if file_name.endswith('.tar.gz'):
+        os.rename(file_path, os.path.join(download_dir, pmid + '.tar.gz'))
+    elif file_name.endswith('.pdf'):
+        os.rename(file_path, os.path.join(download_dir, pmid + '.pdf'))
+    else:
+        raise ValueError('An unknown file type!')
+
+
 
 
 except TimeoutException:
